@@ -1,0 +1,142 @@
+(venv) PS C:\Users\Limansk-LAB\PycharmProjects\Project_dir\project_news> py manage.py makemigrations
+Migrations for 'news1':
+  news1\migrations\0001_initial.py
+    - Create model Author
+    - Create model Category
+    - Create model Post
+    - Create model PostCategory
+    - Add field postCategory to post
+    - Create model Comment
+(venv) PS C:\Users\Limansk-LAB\PycharmProjects\Project_dir\project_news> py manage.py migrate       
+Operations to perform:
+  Apply all migrations: admin, auth, contenttypes, news1, sessions
+Running migrations:
+  Applying contenttypes.0001_initial... OK
+  Applying auth.0001_initial... OK
+  Applying admin.0001_initial... OK
+  Applying admin.0002_logentry_remove_auto_add... OK
+  Applying admin.0003_logentry_add_action_flag_choices... OK
+  Applying contenttypes.0002_remove_content_type_name... OK
+  Applying auth.0002_alter_permission_name_max_length... OK
+  Applying auth.0004_alter_user_username_opts... OK
+  Applying auth.0005_alter_user_last_login_null... OK
+  Applying auth.0006_require_contenttypes_0002... OK
+  Applying auth.0007_alter_validators_add_error_messages... OK
+  Applying auth.0008_alter_user_username_max_length... OK
+  Applying auth.0009_alter_user_last_name_max_length... OK
+  Applying auth.0010_alter_group_name_max_length... OK
+  Applying auth.0011_update_proxy_permissions... OK
+  Applying auth.0012_alter_user_first_name_max_length... OK
+  Applying news1.0001_initial... OK
+  Applying sessions.0001_initial... OK
+(venv) PS C:\Users\Limansk-LAB\PycharmProjects\Project_dir\project_news> python manage.py shell     
+Python 3.11.0 (main, Oct 24 2022, 18:26:48) [MSC v.1933 64 bit (AMD64)] on win32
+Type "help", "copyright", "credits" or "license" for more information.
+(InteractiveConsole)
+>>> from news1.models import *
+>>> u1 = User.objects.create_user(username='Loh')
+>>> u2 = User.objects.create_user(username='neLoh')
+>>> Author.objects.create(autorUser=u1) 
+>>> Author.objects.create(authorUser=u1) 
+<Author: Author object (1)>
+>>> Author.objects.create(authorUser=u2) 
+<Author: Author object (2)> 
+>>> Category.objects.create(Name='Склад') 
+<Category: Category object (1)>
+>>> Category.objects.create(Name='Сварка') 
+<Category: Category object (2)>
+>>> Category.objects.create(Name='Краска') 
+<Category: Category object (3)>
+>>> Category.objects.create(Name='Выпуск') 
+<Category: Category object (4)>
+>>> a1 = Author.objects.get(id=1)
+>>> a2 = Author.objects.get(id=2)
+>>> Post.objects.create(author=a1, categoryType='NW', title='Слияние', text='Теперь сварка и склад - это склад, а краска и выпуск - это выпуск.')
+<Post: Post object (1)>
+>>> Post.objects.create(author=a2, categoryType='AR', title='Склад', text='Варить нужно ровно!')                                                  
+<Post: Post object (2)>
+>>> Post.objects.create(author=a2, categoryType='AR', title='Выпуск', text='Красить нужно ровно!')
+<Post: Post object (3)>   
+>>> Post.objects.get(id=1).postCategory.add(Category.objects.get(id=1))
+>>> Post.objects.get(id=1).postCategory.add(Category.objects.get(id=2)) 
+>>> Post.objects.get(id=1).postCategory.add(Category.objects.get(id=3)) 
+>>> Post.objects.get(id=1).postCategory.add(Category.objects.get(id=4)) 
+>>> Post.objects.get(id=2).postCategory.add(Category.objects.get(id=2)) 
+>>> Post.objects.get(id=3).postCategory.add(Category.objects.get(id=3)) 
+>>> Comment.objects.create(commentPost=Post.objects.get(id=1), commentUser=Author.objects.get(id=2).authorUser, text='Это будет плохо работать')
+<Comment: Comment object (1)>
+>>> Comment.objects.create(commentPost=Post.objects.get(id=1), commentUser=Author.objects.get(id=1).authorUser, text='Это будет хорошо работать') 
+<Comment: Comment object (2)>
+>>> Comment.objects.create(commentPost=Post.objects.get(id=2), commentUser=Author.objects.get(id=1).authorUser, text='Я знаю!')                  
+<Comment: Comment object (3)>
+>>> Comment.objects.create(commentPost=Post.objects.get(id=3), commentUser=Author.objects.get(id=1).authorUser, text='Я знаю!')                  
+<Comment: Comment object (4)>
+>>> Comment.objects.get(id=1).like()
+>>> Comment.objects.get(id=1).like()
+>>> Comment.objects.get(id=2).like() 
+>>> Comment.objects.get(id=2).like() 
+>>> Comment.objects.get(id=3).like() 
+>>> Comment.objects.get(id=4).like() 
+>>> Comment.objects.get(id=4).like() 
+>>> Comment.objects.get(id=4).like() 
+>>> Comment.objects.get(id=1).dislike() 
+>>> a1.update_rating()               
+>>> a2.update_rating()
+>>> Post.objects.get(id=1).like()    
+>>> Post.objects.get(id=1).like()
+>>> Post.objects.get(id=2).like() 
+>>> Post.objects.get(id=2).like() 
+>>> Post.objects.get(id=2).dislike() 
+>>> Post.objects.get(id=3).like() 
+>>> a1.update_rating() 
+>>> a2.update_rating()  
+>>> a = Author.objects.order_by('-ratingAuthor')[:1]  
+>>> for i in a:
+...     i.authorUser.username
+...     i.ratingAuthor
+... 
+'Loh'
+12
+>>> b = Post.objects.order_by('-rating')[:1]         
+>>> for j in b:
+...     j.dateCreation
+...     j.author.authorUser.username
+...     j.title
+... 
+datetime.datetime(2023, 9, 19, 16, 25, 2, 499699, tzinfo=datetime.timezone.utc)
+'Loh'
+'Слияние'
+>>> for j in b:
+...     j.dateCreation
+...     j.author.authorUser.username
+...     j.title
+...     j.rating
+... 
+datetime.datetime(2023, 9, 19, 16, 25, 2, 499699, tzinfo=datetime.timezone.utc)
+'Loh'
+'Слияние'
+2
+>>> c = Post.objects.order_by('-rating').first()
+>>> c = Post.objects.order_by('-rating')            
+>>> c.first().preview()
+'Теперь сварка и склад - это склад, а краска и выпуск - это выпуск....'
+>>> c = Post.objects.order_by('-rating').first().comment_set.all()
+>>> for i in c:
+...     i.dateCreation  
+...     i.commentUser.username
+...     i.rating
+...     i.text 
+...		print('-')
+...
+datetime.datetime(2023, 9, 19, 16, 40, 46, 789166, tzinfo=datetime.timezone.utc)
+'neLoh'
+1
+'Это будет плохо работать'
+-
+datetime.datetime(2023, 9, 19, 16, 42, 2, 971132, tzinfo=datetime.timezone.utc)
+'Loh'
+2
+'Это будет хорошо работать'
+-
+>>> exit()
+(venv) PS C:\Users\Limansk-LAB\PycharmProjects\Project_dir\project_news> 
